@@ -77,16 +77,21 @@ def normalize_json(data_json: dict) -> pd.DataFrame:
         
         # Cambio orden de columnas, asignando 'timestamp' como la primer columna
         df_final = df_final.loc[:, ['timestamp_event'] + [col for col in df_final if col != 'timestamp_event']]
-        
+
         
         # Paso a formato datetime las columnas relacionadas con fechas
         df_final['timestamp_event'] = pd.to_datetime(df_final['timestamp_event'].astype(int), unit='s')
         df_final['arrival_time']    = pd.to_datetime(df_final['arrival_time'], unit='s')
         df_final['departure_time']  = pd.to_datetime(df_final['departure_time'], unit='s')
         df_final['start_date']      = pd.to_datetime(df_final['start_date'])
+
+        # Elimino duplicados
+        df_final = df_final.drop_duplicates()
         
         # Guardo el timestamp en una variable
         timestamp = df_final['timestamp_event'].unique()[0]  
+
+        print('Datos normalizados con éxito')
     else:
         print("El input 'data' debe ser tipo DataFrame")
         df_final, timestamp = False, False
@@ -119,39 +124,60 @@ def database_connection(credentials: dict):
     
 
 
-def create_table(conn, table_name: str):
+def create_table(conn, table_name: str, credentials: dict):
     
     """ Crea una tabla en la base de datos si existe una conexión a la base de datos """
 
+    # Si existe una conexión a la base de datos
     if conn:
+
+        # Creo cursor
         cursor = conn.cursor()
+        query_table_exists = f""" 
+                                SELECT table_name
+                                FROM information_schema.tables
+                                WHERE table_schema = '{credentials['user']}';
+                                """
+        
+        # Obtengo los nombres de 
+        cursor.execute(query_table_exists)
+        tables_in_schema = cursor.fetchall()
+        
+        # Verifico si la tabla ya se encuentra en el Schema
+        existe_table = any([table[0] == table_name for table in tables_in_schema])
+        
+        # Si la tabla ya existe
+        if existe_table:
 
-        query = f""" 
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                timestamp_event TIMESTAMP,
-                line_id VARCHAR(10),
-                trip_id VARCHAR(3),
-                route_id VARCHAR(6),
-                direction_id SMALLINT,
-                start_time TIME,
-                start_date TIMESTAMP,
-                stop_id VARCHAR(5),
-                stop_name VARCHAR(26),
-                arrival_time TIMESTAMP,	
-                arrival_delay SMALLINT,
-                departure_time TIMESTAMP,
-                departure_delay SMALLINT
-                );
-        """
-        print(f"Tabla '{table_name}' creada")
+            print(f"La tabla '{table_name}' ya se encuentra creada")
 
-        cursor.execute(query)
-        conn.commit()
-        cursor.close()
-    
+        # Si la tabla no existe, se crea
+        else:
+            query = f""" 
+                CREATE TABLE IF NOT EXISTS {table_name} (
+                    timestamp_event TIMESTAMP PRIMARY KEY,
+                    line_id VARCHAR(10),
+                    trip_id VARCHAR(3),
+                    route_id VARCHAR(6),
+                    direction_id SMALLINT,
+                    start_time TIME,
+                    start_date TIMESTAMP,
+                    stop_id VARCHAR(5),
+                    stop_name VARCHAR(26),
+                    arrival_time TIMESTAMP,	
+                    arrival_delay SMALLINT,
+                    departure_time TIMESTAMP,
+                    departure_delay SMALLINT
+                    );
+            """
+
+            cursor.execute(query)
+            conn.commit()
+            print(f"Tabla '{table_name}' creada")
+            cursor.close()
+        
     else:
         print("Debe contecarse a una base de datos para crear una tabla")
-
 
 
 def data_ingestion(conn, data: pd.DataFrame, timestamp, table_name: str):
@@ -202,3 +228,16 @@ def data_ingestion(conn, data: pd.DataFrame, timestamp, table_name: str):
     
     else:
         print("El input 'data' debe ser tipo DataFrame")
+
+
+def ETL(client_id, client_secret, conn):
+    # Extraction: Request a la API
+    data_json = request_api(client_id, client_secret)
+        
+    # Transformation: Normalido el json y obtengo el timestamp del request
+    data, timestamp = normalize_json(data_json)
+
+    # Loading: Ingesta de datos obtenidos desde la API a la tabla 'subte'
+    data_ingestion(conn, data, timestamp, 'subte')
+
+    return data_json, data 
