@@ -20,7 +20,7 @@ with DAG(
     default_args = default_args,
     dag_id = 'ETL',
     description = 'DAG para correr un ETL diariamente desde una API a una base de datos en Amazon RDS',
-    start_date = datetime(2024, 5, 30),
+    start_date = datetime(2024, 6, 1),
     schedule_interval = '@daily',
     catchup = True
     ) as dag:
