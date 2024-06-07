@@ -5,7 +5,9 @@ Alumno: Valentín Tafura
 El proyecto consta de extraer datos de la API TRANSPORTE DE BUENOS AIRES, crear un proceso ETL y cargarlos a una tabla de Amazon Redshift
 
 - API link: https://api-transporte.buenosaires.gob.ar/console
+<<<<<<< Updated upstream
 - Granuralidad: La API provee información GTFS dinámica y estática subtes dentro de la CABA con una granularidad medida en minutos (1 minuto aprox.)
+
 
 
 ### Screenshots
@@ -32,7 +34,7 @@ Son los datos estáticos obtenidos desde la API. De ellos se obtendrán el nombr
 - extract (PythonOperator): Extrae los datos dinámicos de la API y los almacena en data/forecast 
 - transform: Transforma los datos dinámicos de la API y los almacena en data/forecast  
 - timestamp_check (BranchPythonOperator): Verifica si el timestamp extraido al momento del request a la API ya se encuentra en la tabla 'subte' de Amazon RDS. Si ya se encuentra sigue hacia la tarea 'already_stored', de lo contrario sigue hacia 'load'.
-- already_stored (BashOperator): Imprime que el timestamp ya se encuentra en la base de datos)
+- already_stored (BashOperator): Imprime que el timestamp ya se encuentra en la base de datos
 - load (PythonOperator): Carga los datos dinámicos procesados a la tabla 'subte' en RDS.
 - alert (PythonOperator): Verifíca si hay que enviar una alerta por mail en caso que algun servicio este demorado mas de lo planificado (esta información se encuentra en el delays.csv)
 - send_email (EmailOperator): Envía email en caso de haberse activado a alarma
