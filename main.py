@@ -175,25 +175,7 @@ with DAG(
     )
 
 
-    email_check
-
 ## Dependencias
-"""
-# Seccion tabla RDS: 
-table_rds >> exist_table_subte >> [create_table, static_files]
-create_table >> static_files
-
-# Seccion datos estaticos
-static_files >> exist_static_files
-exist_static_files >> [forecast, static_request]
-static_request >> static_processing
-static_processing >> forecast
-
-# Seccion obtencion datos forecast
-forecast >> sensor_files >> forecast_request >> transform >> timestamp_already_stored
-timestamp_already_stored >> [print, load]
-"""
-
 # Seccion tabla RDS: 
 table_rds >> exist_table_subte >> [create_table, forecast]
 create_table >> forecast
