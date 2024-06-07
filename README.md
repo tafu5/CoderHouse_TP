@@ -8,7 +8,7 @@ El proyecto consta de extraer datos de la API TRANSPORTE DE BUENOS AIRES, crear 
 <<<<<<< Updated upstream
 - Granuralidad: La API provee información GTFS dinámica y estática subtes dentro de la CABA con una granularidad medida en minutos (1 minuto aprox.)
 
-
+Aclaración: Para poder correr el DAG es necesario crear una conexión a Amazon RDS mediante la UI de Airflow y llamarla 'my_rds_connection"
 
 ### Screenshots
 
