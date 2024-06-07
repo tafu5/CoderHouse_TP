@@ -42,4 +42,6 @@ Son los datos estáticos obtenidos desde la API. De ellos se obtendrán el nombr
 - Status de las tareas
 <img width="249" alt="Screenshot 2024-06-07 at 2 42 46 PM" src="https://github.com/tafu5/CoderHouse_TP/assets/55017296/7b6feeb5-5c70-48ec-adb2-12d2bb080faa">
 
-Como se puede visualizar, en la primer instancia del DAG se crea la tabla 'subte' en Amazon RDS y se crean los archivos estáticos. Estas tareas solo se realizan una vez y luego el flujo las saltea para no duplicar las tareas.
+- Como se puede visualizar, en la primer instancia del DAG se crea la tabla 'subte' en Amazon RDS y se crean los archivos estáticos. Estas tareas solo se realizan una vez y luego el flujo las saltea para no duplicar las tareas.
+- En la tercera instancia el timestamp ya se encontraba creado en la tabla 'subte' en Amazon RDS y por lo tanto se saltea las etapas siguientes.
+
